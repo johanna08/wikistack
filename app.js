@@ -2,11 +2,12 @@ var express = require('express');
 var app = express();
 var morgan = require('morgan');
 var swig = require ('swig');
-var router = require('./routes');
+var router = require('./routes/wiki');
 var fs = require('fs');
 var path = require ('path');
 var bodyParser = require('body-parser');
 var models = require('./models');
+
 
 //logging middleware
 app.use(morgan('dev'));
@@ -14,7 +15,7 @@ app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
-app.use('/', router);
+app.use('/wiki', router);
 
 //express static looks in router first, and if doesnt find anything look sin default path index.html
 app.use(express.static(path.join(__dirname, '/views/index.html')));
@@ -45,7 +46,3 @@ models.User.sync({})
     });
 })
 .catch(console.error);
-
-// var server = app.listen(1337, function(){
-// 	console.log('listening on port 1337');
-// });
