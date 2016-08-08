@@ -6,7 +6,7 @@ var router = require('./routes');
 var fs = require('fs');
 var path = require ('path');
 var bodyParser = require('body-parser');
-
+var models = require('./models');
 
 //logging middleware
 app.use(morgan('dev'));
@@ -29,7 +29,23 @@ app.engine('html', swig.renderFile);
 // turn of swig's caching
 swig.setDefaults({cache: false});
 
+// Where your server and express app are being defined:
 
-var server = app.listen(1337, function(){
-	console.log('listening on port 1337');
-});
+
+
+// ... other stuff
+
+models.User.sync({})
+.then(function () {
+    return models.Page.sync({})
+})
+.then(function () {
+    app.listen(3001, function () {
+        console.log('Server is listening on port 3001!');
+    });
+})
+.catch(console.error);
+
+// var server = app.listen(1337, function(){
+// 	console.log('listening on port 1337');
+// });
