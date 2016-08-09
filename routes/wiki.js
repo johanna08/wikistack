@@ -1,22 +1,45 @@
 var express = require('express');
 var router = express.Router();
-// var wikiRouter = require('./routes/wiki');
-// ...
-// app.use('/wiki', wikiRouter);
-// or, in one line: app.use('/wiki', require('./routes/wiki'));
+var models = require('../models');
+var Page = models.Page; 
+var User = models.User; 
 module.exports = router;
-
 //retrieve all wiki pages
 router.get('/', function(req, res, next) {
-  res.redirect('/');
-  next();
+  
+  res.send('hello');
 });
 
-router.post('/', function(req, res, next) {
-  res.json(req.body);
+router.post('/add', function(req, res, next) {
+	// res.json(req.body);
+  var page = Page.build({
+    title: req.body.title,
+    content: req.body.content
+  });
+  page.save();
+
+  // res.json('/wiki');
+  //res.redirect needs path when goes thru app.js again
 });
 
 router.get('/add', function(req, res, next) {
   res.render('addpage');
 });
+
+router.get('/:urlTitle', function(req, res, next) {
+  // res.send('hit dynamic route at ' + req.params.urlTitle);
+  Page.findOne({ 
+    where: { 
+      urlTitle: req.params.urlTitle 
+    } 
+  })
+  .then(function(foundPage){
+    res.json(foundPage);
+  })
+  .catch(next);
+
+});
+
+
+
 

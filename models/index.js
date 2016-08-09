@@ -1,6 +1,6 @@
 var Sequelize = require('sequelize');
 var db = new Sequelize('postgres://localhost:5432/wikistack', {
-    logging: false
+    // logging: false
 });
 
 var Page = db.define('page', {
@@ -8,20 +8,6 @@ var Page = db.define('page', {
         type: Sequelize.STRING,
         allowNull: false
     }, 
-    // urlTitle: {
-    //     type: Sequelize.STRING,
-    //     allowNull: false,
-    //     get: function(){
-    //     	return '/wiki/' + this.getDataValue('title').split(" ").join("_");
-    //     }
-    // }, 
-    	
-    	// setterMethods : {
-    	// 	urlTitle : function(title) {
-    	// 		var urlName = this.setDataValue('title', title.split(" ").join("_"));
-    	// 	}
-    	// },
-    
     content: {
         type: Sequelize.TEXT,
         allowNull: false
@@ -34,15 +20,26 @@ var Page = db.define('page', {
     	defaultValue: Sequelize.NOW
     }
 }, {
-getterMethods : {
-	urlTitle : function() { 
-		return this.getDataValue('title');
-		
+	hooks: {
+	afterValidate: function (row) {
+		console.log('here');
+	  if (row.title) {
+	    // Removes all non-alphanumeric characters from title
+	    // And make whitespace underscore
+	    row.title = row.title.replace(/\s+/g, '_').replace(/\W/g, '');
+	  } else {
+	    // Generates random 5 letter string
+	    row.title = Math.random().toString(36).substring(2, 7);
+	  }
+},
+	getterMethods : {
+		urlTitle: {
+			function(){
+				return this.getDataValue('title');
+			}
+		}
 	}
-	//2nd getter fn would go here
-	// secondgetter : function(){} 
-	// } //setter methods would go here
-	}
+}
 });
 
 var User = db.define('user', {
