@@ -8,12 +8,17 @@ var Page = db.define('page', {
         type: Sequelize.STRING,
         allowNull: false
     }, 
+    urlTitle: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
     content: {
         type: Sequelize.TEXT,
         allowNull: false
     },
     status: {
-        type: Sequelize.ENUM('open', 'closed')
+        type: Sequelize.ENUM('open', 'closed'),
+        defaultValue: 'open'
     },
     date: {
     	type: Sequelize.DATE,
@@ -21,23 +26,21 @@ var Page = db.define('page', {
     }
 }, {
 	hooks: {
-	afterValidate: function (row) {
-		console.log('here');
-	  if (row.title) {
+	beforeValidate: function (page) {
+		console.log('beforeValidate');
+	  if (page.title) {
 	    // Removes all non-alphanumeric characters from title
 	    // And make whitespace underscore
-	    row.title = row.title.replace(/\s+/g, '_').replace(/\W/g, '');
+	    page.urlTitle = page.title.replace(/\s+/g, '_').replace(/\W/g, '');
 	  } else {
 	    // Generates random 5 letter string
-	    row.title = Math.random().toString(36).substring(2, 7);
+	    page.urlTitle = Math.random().toString(36).substring(2, 7);
 	  }
 },
-	getterMethods : {
-		urlTitle: {
-			function(){
-				return this.getDataValue('title');
-			}
-		}
+	getterMethods: {
+        route: function () {
+            return '/wiki/' + this.urlTitle;
+        }
 	}
 }
 });
@@ -49,7 +52,11 @@ var User = db.define('user', {
     },
     email: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
+        unique: true,
+        validate: {
+        	isEmail: true
+        }
     }
 });
 
